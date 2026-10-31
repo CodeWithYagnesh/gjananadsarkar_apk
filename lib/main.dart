@@ -39,12 +39,28 @@ class _WebViewScreenState extends State<WebViewScreen> {
       );
   }
 
+  Future<void> handleBack() async {
+    if (await controller.canGoBack()) {
+      await controller.goBack();
+    } else if (mounted) {
+      await Navigator.of(context).maybePop();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: WebViewWidget(
-          controller: controller,
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (!didPop) {
+          await handleBack();
+        }
+      },
+      child: Scaffold(
+        body: SafeArea(
+          child: WebViewWidget(
+            controller: controller,
+          ),
         ),
       ),
     );
